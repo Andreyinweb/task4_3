@@ -1,8 +1,10 @@
 #!/bin/bash
 
-MAX_NUM=50
+MAX_NUM=100
 WAY_FILE="/tmp/backups/"
-
+if ! [ -e "$WAY_FILE" ] ; then
+    mkdir "$WAY_FILE"
+fi
 str_argv=$*
 end_argv=${!#}
 num_argv=$#
@@ -34,23 +36,29 @@ else
 Use:   task4_3.sh [folder] [number back-up]" >&2
 exit 4
 fi
-name_back="$( echo "$argv" | cut -c 2- | tr  '/' '-' )"      # | tr  ':' '-' 
-name_date="$name_back+_-$( date -Iseconds | tr  ':' '%' )"
+name_back="$( echo "$argv" | cut -c 2- | tr  '/' '-' | tr  ' ' '_' )"      # | tr  ':' '-' 
+name_date="$name_back+_-$( date +%Y%m%d%H%M%S )"
 name_full="$name_date.tar.gz"
 
-cuunt_file=$(find "$WAY_FILE" -type f -name "$name_back*" | wc -l)
+count_file=$(find "$WAY_FILE" -type f -name "$name_back*" | wc -l)
+max_i=$(($count_file-$end_argv+1))
 
-if [ $cuunt_file -le $end_argv ] ; then
+
+if [ $count_file -lt $end_argv ] ; then
     tar -cvzf "$name_full" "$argv" && mv "$name_full" "$WAY_FILE"
 
 else
-    sort
+    
+    i=1
+    for file_del in $(find "$WAY_FILE" -type f -name "$name_back*" | sort -n )
+        do 
+        
+        rm -f "$file_del"
+        if [ $max_i -eq $i ] ; then
+            break
+        fi
+        ((i ++))
 
-    echo "name_back= $name_back "
-    echo "name_date= $name_date "
-    echo "name_full= $name_full "
+    done
+    tar -cvzf "$name_full" "$argv" && mv "$name_full" "$WAY_FILE"
 fi
-
-
-
-echo "______________END________________________"
