@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MAX_NUM=50
-WAY_FILE="/tmp/backups/ "
+WAY_FILE="/tmp/backups/"
 
 str_argv=$*
 end_argv=${!#}
