@@ -5,6 +5,8 @@ WAY_FILE="/tmp/backups/"
 if ! [ -e "$WAY_FILE" ] ; then
     mkdir "$WAY_FILE"
 fi
+
+
 str_argv=$*
 end_argv=${!#}
 num_argv=$#
@@ -36,6 +38,10 @@ else
 Use:   task4_3.sh [folder] [number back-up]" >&2
 exit 4
 fi
+
+name_cd="${argv%/*}"
+name_folder="${argv##*/}"
+
 name_back="$( echo "$argv" | cut -c 2- | tr  '/' '-' | tr  ' ' '_' )"      # | tr  ':' '-' 
 name_date="$name_back+_-$( date +%Y%m%d%H%M%S )"
 name_full="$name_date.tar.gz"
@@ -43,9 +49,12 @@ name_full="$name_date.tar.gz"
 count_file=$(find "$WAY_FILE" -type f -name "$name_back*" | wc -l)
 max_i=$(($count_file-$end_argv+1))
 
+cd "$name_cd"
+
 
 if [ $count_file -lt $end_argv ] ; then
-    tar -cvzf "$name_full" "$argv" && mv "$name_full" "$WAY_FILE"
+    tar -cvzf "$name_full" "$name_folder" >/dev/null
+    mv "$name_full" "$WAY_FILE"
 
 else
     
@@ -60,5 +69,14 @@ else
         ((i ++))
 
     done
-    tar -cvzf "$name_full" "$argv" && mv "$name_full" "$WAY_FILE"
+    tar -cvzf "$name_full" "$name_folder" >/dev/null
+    mv "$name_full" "$WAY_FILE"
 fi
+if [ -f "$WAY_FILE$name_full" ] ; then
+    echo "Back-up complete"
+else
+    echo "Error: task4_3: Not File $WAY_FILE$name_full
+Something went wrong." >&2
+    exit 5
+fi
+
