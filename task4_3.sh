@@ -42,15 +42,14 @@ fi
 name_cd="${argv%/*}"
 name_folder="${argv##*/}"
 
-name_back="$( echo "$argv" | cut -c 2- | tr  '/' '-' | tr  ' ' '_' )"      # | tr  ':' '-' 
-name_date="$name_back+_-$( date +%Y%m%d%H%M%S )"
+name_back="$( echo "$argv" | cut -c 2- | tr  '/' '-' )"      # | tr  ':' '-'       | tr  ' ' '_' 
+name_date="$name_back-$( date +%Y%m%d%H%M%S )"
 name_full="$name_date.tar.gz"
 
 count_file=$(find "$WAY_FILE" -type f -name "$name_back*" | wc -l)
 max_i=$(($count_file-$end_argv+1))
 
 cd "$name_cd"
-
 
 if [ $count_file -lt $end_argv ] ; then
     tar -cvzf "$name_full" "$name_folder" >/dev/null
@@ -59,10 +58,10 @@ if [ $count_file -lt $end_argv ] ; then
 else
     
     i=1
-    for file_del in $(find "$WAY_FILE" -type f -name "$name_back*" | sort -n )
+    for file_del in $(find "$WAY_FILE" -type f -name "$name_back*" | sort -n | sed  's! !//!g'  )
         do 
         
-        rm -f "$file_del"
+        rm -f "$( echo $file_del | sed 's!//! !g' )"
         if [ $max_i -eq $i ] ; then
             break
         fi
@@ -72,6 +71,8 @@ else
     tar -cvzf "$name_full" "$name_folder" >/dev/null
     mv "$name_full" "$WAY_FILE"
 fi
+
+
 if [ -f "$WAY_FILE$name_full" ] ; then
     echo "Back-up complete"
 else
@@ -79,4 +80,3 @@ else
 Something went wrong." >&2
     exit 5
 fi
-
